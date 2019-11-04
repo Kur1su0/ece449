@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
+#include<unistd.h>
 DIR *dirp;
 struct dirent *dp;
 struct stat st;
